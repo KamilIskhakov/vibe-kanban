@@ -29,6 +29,10 @@ export function getAgentName(
       return 'Copilot';
     case BaseCodingAgent.DROID:
       return 'Droid';
+    case BaseCodingAgent.KIMI:
+      return 'Kimi';
+    case BaseCodingAgent.GROK:
+      return 'Grok';
   }
 }
 
@@ -72,6 +76,12 @@ export function AgentIcon({ agent, className = 'h-4 w-4' }: AgentIconProps) {
       break;
     case BaseCodingAgent.DROID:
       iconPath = `/agents/droid${suffix}.svg`;
+      break;
+    case BaseCodingAgent.KIMI:
+      iconPath = `/agents/kimi${suffix}.svg`;
+      break;
+    case BaseCodingAgent.GROK:
+      iconPath = `/agents/grok${suffix}.svg`;
       break;
     default:
       return null;

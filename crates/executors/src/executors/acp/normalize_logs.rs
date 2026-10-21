@@ -36,6 +36,23 @@ pub fn normalize_logs_with_suppressed_stderr_patterns(
     worktree_path: &Path,
     suppressed_stderr_patterns: &[&str],
 ) -> Vec<tokio::task::JoinHandle<()>> {
+    normalize_logs_with_parser(
+        msg_store,
+        worktree_path,
+        suppressed_stderr_patterns,
+        AcpEventParser::parse_line,
+    )
+}
+
+/// Same normalization pipeline as [`normalize_logs`], but with a custom line parser,
+/// so agents that emit ACP-shaped session updates in their own envelope (e.g. Grok's
+/// `--output-format streaming-json` NDJSON) can reuse it.
+pub(crate) fn normalize_logs_with_parser(
+    msg_store: Arc<MsgStore>,
+    worktree_path: &Path,
+    suppressed_stderr_patterns: &[&str],
+    parse_line: fn(&str) -> Option<AcpEvent>,
+) -> Vec<tokio::task::JoinHandle<()>> {
     // stderr normalization
     let entry_index = EntryIndexProvider::start_from(&msg_store);
     let h1 = if suppressed_stderr_patterns.is_empty() {
@@ -63,7 +80,7 @@ pub fn normalize_logs_with_suppressed_stderr_patterns(
 
         let mut stdout_lines = msg_store.stdout_lines_stream();
         while let Some(Ok(line)) = stdout_lines.next().await {
-            if let Some(parsed) = AcpEventParser::parse_line(&line) {
+            if let Some(parsed) = parse_line(&line) {
                 tracing::trace!("Parsed ACP line: {:?}", parsed);
                 match parsed {
                     AcpEvent::SessionStart(id) => {

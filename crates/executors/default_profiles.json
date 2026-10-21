@@ -63,6 +63,20 @@
           "autonomy": "skip-permissions-unsafe"
         }
       }
+    },
+    "KIMI": {
+      "DEFAULT": {
+        "KIMI": {
+          "yolo": true
+        }
+      }
+    },
+    "GROK": {
+      "DEFAULT": {
+        "GROK": {
+          "bypass_permissions": true
+        }
+      }
     }
   }
 }
